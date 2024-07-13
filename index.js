@@ -12,6 +12,7 @@ connectToDb(process.env.MONGOURL).then(() => console.log("connected to the db su
 
 
 app.use(express.json());
+app.use(cors());
 app.use('/url', urlRoute);
 
 app.get('/:shortId', async (req, res) => {
