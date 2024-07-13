@@ -4,7 +4,7 @@ import { router as urlRoute } from "./routes/url.js";
 import { connectToDb } from './connect.js';
 import { URL } from './models/url.js';
 import 'dotenv/config';
-
+import cors from "cors";
 const app = express();
 const PORT = 5001;
 
