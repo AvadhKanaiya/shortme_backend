@@ -6,6 +6,7 @@ import { URL } from "../models/url.js";
 async function handleGenerateNewShortUrl(req, res) {
     const body = req.body;
     if (!body.url) return res.status(400).json({ message: "Url is required" });
+    console.log(body.url);
     const shortId = shortid();
     await URL.create({
         shortId: shortId,
