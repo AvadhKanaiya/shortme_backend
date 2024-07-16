@@ -1,6 +1,7 @@
 
 import express from 'express';
 import { router as urlRoute } from "./routes/url.js";
+import { router as visitorRouter } from "./routes/visitor.js";
 import { connectToDb } from './connect.js';
 import { URL } from './models/url.js';
 import 'dotenv/config';
@@ -14,6 +15,7 @@ connectToDb(process.env.MONGOURL).then(() => console.log("connected to the db su
 app.use(express.json());
 app.use(cors());
 app.use('/url', urlRoute);
+app.use('/visitors', visitorRouter);
 
 app.get('/:shortId', async (req, res) => {
     const shortId = req.params.shortId;
