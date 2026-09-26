@@ -19,6 +19,28 @@ export const createUrlLimiter = rateLimit({
   message: { error: "Too many URLs created. Try again in a minute." },
 });
 
+export const destinationUrlLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 3,
+  keyGenerator: (req) => {
+    let hostname = "invalid-url";
+
+    try {
+      hostname = new URL(req.body?.url).hostname.toLowerCase();
+    } catch {
+      // Let the URL handler return its normal validation error.
+    }
+
+    return `${userOrIpKey(req)}:destination:${hostname}`;
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error:
+      "Too many short links created for this website. Try again in a minute.",
+  },
+});
+
 export const redirectLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: 120,

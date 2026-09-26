@@ -9,6 +9,8 @@ import cors from "cors";
 const app = express();
 const PORT = 5001;
 
+app.set("trust proxy", 1);
+
 connectToDb(process.env.MONGOURL)
   .then(() => console.log("connected to the db successfully"))
   .catch((err) => {
