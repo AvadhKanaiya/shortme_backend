@@ -1,4 +1,22 @@
 import { rateLimit, ipKeyGenerator } from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
+import { redisClient, isReady } from "../redis.js";
+
+/**
+ * Build a RedisStore for express-rate-limit.
+ * Returns undefined (falls back to MemoryStore) when Redis is not available.
+ */
+function makeRedisStore(prefix) {
+  if (!redisClient || !isReady) return undefined;
+  try {
+    return new RedisStore({
+      sendCommand: (...args) => redisClient.call(...args),
+      prefix,
+    });
+  } catch {
+    return undefined;
+  }
+}
 
 function userOrIpKey(req) {
   const userId = req.user?.id ?? req.user?._id;
@@ -14,6 +32,7 @@ export const createUrlLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: 10,
   keyGenerator: userOrIpKey,
+  store: makeRedisStore("rl:create:"),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many URLs created. Try again in a minute." },
@@ -33,6 +52,7 @@ export const destinationUrlLimiter = rateLimit({
 
     return `${userOrIpKey(req)}:destination:${hostname}`;
   },
+  store: makeRedisStore("rl:dest:"),
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -45,6 +65,7 @@ export const redirectLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: 120,
   keyGenerator: userOrIpKey,
+  store: makeRedisStore("rl:redirect:"),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests. Try again in a minute." },
